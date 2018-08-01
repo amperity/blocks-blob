@@ -91,7 +91,9 @@
 
   (-list
     [this opts]
-    )
+    (->> (.listBlobs container root true) ; lazy, flat list of blobs
+         (map blob->stats)
+         (store/select-stats opts)))
 
   (-get
     [this id]
@@ -114,10 +116,12 @@
       (let [path (id->path root id)
             ^CloudBlob blob (.getBlockBlobReference container path)]
         (log/debugf "Deleting file %s" (.getPrimaryUri (.getSnapshotQualifiedStorageUri blob)))
-        (.delete blob))
+        (.delete blob)
+        true)
       (catch StorageException se
         (when (not= 404 (.getHttpStatusCode se))
-          (throw se))))))
+          (throw se))
+        false))))
 
 ;; ## Store Construction
 
