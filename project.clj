@@ -1,4 +1,4 @@
-(defproject amperity/blocks-blob "0.0.1"
+(defproject amperity/blocks-blob "0.0.2"
   :description "Content-addressable Azure Blob block store."
   :url "https://github.com/amperity/blocks-blob"
   :license {:name "Apache License 2.0"
