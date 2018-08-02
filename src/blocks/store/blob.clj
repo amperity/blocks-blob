@@ -153,5 +153,5 @@
   [location]
   (let [uri (URI. location)]
     (blob-block-store
-      (URI. "https" (.getHost uri) (.getPath uri))
-      :credentials (StorageCredentialsSharedAccessSignature. (.getQuery uri)))))
+      (URI. "https" (.getHost uri) (.getPath uri) nil)
+      (StorageCredentialsSharedAccessSignature. (.getQuery uri)))))
