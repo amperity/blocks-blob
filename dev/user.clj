@@ -1,6 +1,7 @@
 (ns user
   (:require
     [blocks.core :as block]
+    [blocks.store :as store]
     [blocks.store.blob :refer [blob-block-store]]
     [clojure.java.io :as io]
     [clojure.repl :refer :all]
