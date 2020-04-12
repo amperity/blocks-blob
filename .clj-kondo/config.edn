@@ -1,0 +1,11 @@
+{:linters
+ {:consistent-alias
+  {:level :warning
+   :aliases {clojure.java.io io
+             clojure.set set
+             clojure.string str
+             clojure.tools.logging log
+             com.stuartsierra.component component
+             manifold.deferred d
+             manifold.stream s
+             multiformats.hash multihash}}}}
