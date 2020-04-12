@@ -16,11 +16,12 @@
     java.net.URI))
 
 
-(defn store
+(defn new-store
   [path]
-  (let [container-uri (URI. (System/getenv "BLOCKS_BLOB_TEST_URI"))
-        shared-access-key (StorageCredentialsSharedAccessSignature. (System/getenv "BLOCKS_BLOB_TEST_SAS_TOKEN"))]
-    (->
-      (blob-block-store container-uri shared-access-key
-                        :root (or path "user"))
-      (component/start))))
+  (some->
+    (System/getenv "BLOCKS_BLOB_TEST_URI")
+    (block/->store)
+    (assoc :root (if (str/ends-with? path "/")
+                   path
+                   (str path "/")))
+    (component/start)))

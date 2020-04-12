@@ -28,6 +28,7 @@
       OutputStream)
     java.net.URI
     java.time.Instant
+    java.util.Date
     (org.apache.commons.io.input
       BoundedInputStream)))
 
@@ -57,7 +58,10 @@
       (with-meta
         {:id (multihash/parse blob-name)
          :size (.getLength properties)
-         :stored-at (.toInstant (.getLastModified properties))}
+         :stored-at (if-let [date (or (.getLastModified properties)
+                                      (.getCreatedTime properties))]
+                      (.toInstant ^Date date)
+                      (Instant/now))}
         {::source (.getPrimaryUri (.getSnapshotQualifiedStorageUri blob))
          ::name (.getName blob)}))))
 
@@ -105,7 +109,8 @@
       stat-meta)))
 
 
-;; ## Blob Functions
+
+;; ## Blob Iteration
 
 (defn- run-blobs!
   "Run the provided function over all blobs in the container matching the given
@@ -130,7 +135,7 @@
 
             ;; Otherwise, call function.
             (f blob)
-            (recur blobs (dec limit))
+            (recur blobs (when limit (dec limit)))
 
             ;; Function returned false, halt iteration.
             :else nil)
@@ -222,9 +227,14 @@
             (with-open [output (.openOutputStream blob)
                         content (data/content-stream block nil nil)]
               (io/copy content output))
-            (let [blob (.getBlockBlobReference container path)
-                  stats (blob->stats blob)]
-              (blob->block blob stats)))))))
+            (blob->block
+              blob
+              (with-meta
+                {:id (:id block)
+                 :size (:size block)
+                 :stored-at (Instant/now)}
+                {::source (.getPrimaryUri (.getSnapshotQualifiedStorageUri blob))
+                 ::name path})))))))
 
 
   (-delete!
@@ -233,7 +243,6 @@
       (try
         (let [path (id->path root id)
               blob (.getBlockBlobReference container path)]
-          (log/debugf "Deleting file %s" (.getPrimaryUri (.getSnapshotQualifiedStorageUri blob)))
           (.delete blob)
           true)
         (catch StorageException se
