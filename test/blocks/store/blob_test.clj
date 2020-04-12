@@ -17,6 +17,7 @@
 (def blob-uri (System/getenv "BLOCKS_BLOB_TEST_URI"))
 (def blob-sas-token (System/getenv "BLOCKS_BLOB_TEST_SAS_TOKEN"))
 
+
 (deftest ^:integration check-blob-store
   (if-let [test-store-uri blob-uri]
     (let [credentials (StorageCredentialsSharedAccessSignature. blob-sas-token)

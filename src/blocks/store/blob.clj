@@ -1,7 +1,6 @@
 (ns blocks.store.blob
   "Block storage backed by Azure blob storage."
   (:require
-    [blocks.core :as block]
     [blocks.data :as data]
     [blocks.store :as store]
     [clojure.java.io :as io]
@@ -16,12 +15,12 @@
       StorageException)
     (com.microsoft.azure.storage.blob
       BlobProperties
+      CloudBlob
       CloudBlobClient
       CloudBlobContainer
-      CloudBlob
       CloudBlockBlob
-      SharedAccessBlobPolicy
-      SharedAccessBlobHeaders)
+      SharedAccessBlobHeaders
+      SharedAccessBlobPolicy)
     (java.io
       InputStream
       OutputStream)
@@ -36,6 +35,7 @@
   [root id]
   (str root (multihash/hex id)))
 
+
 (defn blob->stats
   [^CloudBlob blob]
   (let [^BlobProperties properties (.getProperties blob)
@@ -44,6 +44,7 @@
      :size (.getLength properties)
      :source (.getPrimaryUri (.getSnapshotQualifiedStorageUri blob))
      :stored-at (.getLastModified properties)}))
+
 
 (defn file->block
   [^CloudBlobContainer container root stats]
@@ -67,11 +68,13 @@
    ^String root]
 
   component/Lifecycle
+
   (start
     [this]
     (if-not container
       (assoc this :container (CloudBlobContainer. container-uri credentials))
       this))
+
 
   (stop
     [this]
@@ -89,16 +92,19 @@
       (when (and blob (.exists blob))
         (blob->stats blob))))
 
+
   (-list
     [this opts]
     (->> (.listBlobs container root true) ; lazy, flat list of blobs
          (map blob->stats)
          (store/select-stats opts)))
 
+
   (-get
     [this id]
     (when-let [stats (.-stat this id)]
       (file->block container root stats)))
+
 
   (-put!
     [this block]
@@ -109,6 +115,7 @@
                     content (block/open block)]
           (io/copy content output)))
       (.-get this (:id block))))
+
 
   (-delete!
     [this id]
@@ -127,18 +134,20 @@
 
 (store/privatize-constructors! BlobBlockStore)
 
+
 (defn- canonical-root
   "Ensures that a root path doesn't begin with a slash but does end with one."
   [root]
   (if (= "/"  root)
     ""
     (as-> root path
-      (if (str/starts-with? path "/")
-        (subs path 1 (count path))
-        path)
-      (if (str/ends-with? path "/")
-        path
-        (str path "/")))))
+          (if (str/starts-with? path "/")
+            (subs path 1 (count path))
+            path)
+          (if (str/ends-with? path "/")
+            path
+            (str path "/")))))
+
 
 (defn blob-block-store
   [container-uri ^StorageCredentials credentials & {:as opts}]

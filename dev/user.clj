@@ -18,10 +18,11 @@
       URI)))
 
 
-(defn store [path]
+(defn store
+  [path]
   (let [container-uri (URI. (System/getenv "BLOCKS_BLOB_TEST_URI"))
         shared-access-key (StorageCredentialsSharedAccessSignature. (System/getenv "BLOCKS_BLOB_TEST_SAS_TOKEN"))]
     (->
       (blob-block-store container-uri shared-access-key
-                       :root (or path "user"))
+                        :root (or path "user"))
       (component/start))))
