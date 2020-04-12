@@ -1,11 +1,9 @@
 (ns blocks.store.blob-test
   (:require
-    [blocks.core :as block]
     [blocks.store.blob :as blob :refer [blob-block-store]]
     [blocks.store.tests :as tests]
     [clojure.test :refer [deftest]]
-    [com.stuartsierra.component :as component]
-    [multiformats.hash :as multihash])
+    [com.stuartsierra.component :as component])
   (:import
     (com.microsoft.azure.storage
       StorageCredentialsSharedAccessSignature)

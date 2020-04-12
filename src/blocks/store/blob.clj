@@ -15,22 +15,12 @@
       StorageCredentialsSharedAccessSignature
       StorageException)
     (com.microsoft.azure.storage.blob
-      BlobProperties
       CloudBlob
-      CloudBlobClient
       CloudBlobContainer
-      CloudBlockBlob
-      ListBlobItem
-      SharedAccessBlobHeaders
-      SharedAccessBlobPolicy)
-    (java.io
-      InputStream
-      OutputStream)
+      CloudBlockBlob)
     java.net.URI
     java.time.Instant
-    java.util.Date
-    (org.apache.commons.io.input
-      BoundedInputStream)))
+    java.util.Date))
 
 
 ;; ## Blob Functions
