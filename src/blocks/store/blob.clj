@@ -67,7 +67,6 @@
   (read-all
     [this]
     (log/trace "Opening Azure blob" (.getName blob))
-    #_(.getBlockBlobReference container blob-name)
     (.openInputStream blob))
 
 
