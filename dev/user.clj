@@ -9,19 +9,19 @@
     [clojure.string :as str]
     [clojure.tools.namespace.repl :refer [refresh]]
     [com.stuartsierra.component :as component]
-    [multihash.core :as multihash]
-    [multihash.digest :as digest])
+    [multiformats.hash :as multihash])
   (:import
     (com.microsoft.azure.storage
       StorageCredentialsSharedAccessSignature)
-    (java.net
-      URI)))
+    java.net.URI))
 
 
-(defn store [path]
-  (let [container-uri (URI. (System/getenv "BLOCKS_BLOB_TEST_URI"))
-        shared-access-key (StorageCredentialsSharedAccessSignature. (System/getenv "BLOCKS_BLOB_TEST_SAS_TOKEN"))]
-    (->
-      (blob-block-store container-uri shared-access-key
-                       :root (or path "user"))
-      (component/start))))
+(defn new-store
+  [path]
+  (some->
+    (System/getenv "BLOCKS_BLOB_TEST_URI")
+    (block/->store)
+    (assoc :root (if (str/ends-with? path "/")
+                   path
+                   (str path "/")))
+    (component/start)))
